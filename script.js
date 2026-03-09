@@ -9,20 +9,19 @@ let allIssues = [];
 
 
 const loadIssues = () => {
+    const spinner = document.getElementById("loading-spinner");
+    spinner.classList.remove('hidden');
     fetch("https://phi-lab-server.vercel.app/api/v1/lab/issues") // promise of response
     .then(res => res.json())
     .then(json => {
         allIssues = json.data;
+        spinner.classList.add('hidden');
         const allIssue = document.getElementById("length-issues");
         allIssue.innerText = `${allIssues.length}`;
         displayIssues(allIssues);
-    });
-    
+        document.getElementById('btn-all').classList.add('active');
+    });   
 };
-
-const allIssue = document.getElementById("length-issues");
-allIssue.innerText = allIssues.length;
-
 
 // {
 // "id": 1,
@@ -40,42 +39,41 @@ allIssue.innerText = allIssues.length;
 // "updatedAt": "2024-01-15T10:30:00Z"
 // },
 
-document.getElementById('btn-all').addEventListener('click', () => filterIssues('all'));
-document.getElementById('btn-open').addEventListener('click', () => filterIssues('open'));
-document.getElementById('btn-Closed').addEventListener('click', () => filterIssues('closed'));
 
 
 const filterIssues = (status, event) => {
+    const spinner = document.getElementById("loading-spinner");
+    const issuesCard = document.getElementById("issues-card");
+
+    if(spinner){
+        spinner.classList.remove('hidden');
+        issuesCard.innerHTML = "";
+        issuesCard.appendChild(spinner);
+    }else{
+        issuesCard.innerHTML = "";
+    }
+    // spinner.classList.remove('hidden');
+    // issuesCard.innerHTML = '';
+    // issuesCard.appendChild(spinner);
+
     const colorButton = document.querySelectorAll('.filter-btn');
     colorButton.forEach(btn => btn.classList.remove('active'));
     if(event){
-        event.target.classList.add('active');
+        event.target.closest('.filter-btn').classList.add('active');
     };
 
-
-
-
-    let filteredData;
+    let filteredData = status === 'all' ? allIssues:allIssues.filter(i => i.status === status);
     
-    if (status === 'all') {
-        filteredData = allIssues; // যেখানে আপনার সব ডাটা সেভ করা আছে
-    } else {
-        filteredData = allIssues.filter(issue => issue.status === status);
-    }
+    const allIssue = document.getElementById("length-issues");
+    allIssue.innerText = filteredData.length;
 
-
-    // ইস্যু সংখ্যা আপডেট করা
-    allIssue.innerText = `${filteredData.length}`;
-
-    const issuesCard = document.getElementById("issues-card");
-    
-    // কার্ড কন্টেইনার খালি করে নতুন করে ডাটা দেখানো
-    issuesCard.innerHTML = '';
+    //spinner.classList.add('hidden');
     displayIssues(filteredData);
 };
 
-
-
+document.getElementById('btn-all').addEventListener('click', (event) => filterIssues('all', event));
+document.getElementById('btn-open').addEventListener('click', (event) => filterIssues('open', event));
+document.getElementById('btn-Closed').addEventListener('click', (event) => filterIssues('closed', event));
 
 const displayIssues=(issues)=>{
     // get all issues container
@@ -85,13 +83,10 @@ const displayIssues=(issues)=>{
     for(let issue of issues){
         // 3. create Element
         // console.log(issue);
-        const countIssues = document.createElement("length-issues");
-        countIssues.innerText = issues.length;
-
         const issueCard = document.createElement("div");
         issueCard.innerHTML = `
         <div class="flex flex-col h-full border-t-4 border-solid ${issue.status === 'open'?'border-green-500':'border-violet-500'} rounded-md shadow-md bg-white">
-            <div class="p-2">
+            <div class="p-2 space-y-3">
                 <div class="flex justify-between items-start mb-4 p-4">
                     <div class="">
                         ${issue.status === 'open'?`<img class="" src="./assets/Open-Status.png" alt="open">`:`<img class="" src="./assets/Closed- Status .png" alt="close">`}
@@ -121,3 +116,9 @@ const displayIssues=(issues)=>{
 };
 
 loadIssues();
+
+document.querySelector('input[type="search"]').addEventListener('input', (e) => {
+    const term = e.target.value.toLowerCase();
+    const result = allIssues.filter(issue => issue.title.toLowerCase().includes(term));
+    displayIssues(result);
+});

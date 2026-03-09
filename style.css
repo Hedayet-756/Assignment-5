@@ -2,8 +2,14 @@
     font-family: "Geist", sans-serif;
 };
 
+.filter-btn{
+    transition: all 0.1 ease;
+}
+
 .active{
-    background-color: #422ad5;
-    color: white;
-    font-weight: bold;
+    background-color: #422ad5 !important;
+    color: white !important;
+    font-weight: bold !important;
+    transform: scale(1.05);
+    border-color: #422ad5;
 }
