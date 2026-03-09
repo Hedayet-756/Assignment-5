@@ -111,10 +111,21 @@ const displayIssues=(issues)=>{
 
 loadIssues();
 
-document.getElementById("search-ingine").addEventListener('input', (e) => {
-    const term = e.target.value.toLowerCase();
+document.getElementById('btn-search').addEventListener('click', () => {
+    const term = document.getElementById("search-ingine").value.toLowerCase();
     const result = allIssues.filter(issue => issue.title.toLowerCase().includes(term));
     displayIssues(result);
+});
+
+document.getElementById("search-ingine").addEventListener('input', (e) => {
+    const term = e.target.value.toLowerCase();
+
+    if(term === ""){
+        displayIssues(allIssues);
+    }else{
+    const result = allIssues.filter(issue => issue.title.toLowerCase().includes(term));
+    displayIssues(result);
+    };
 });
 
 
