@@ -1,12 +1,7 @@
-const createElement = (arr) => {
-    const htmlElements = arr.map(el => `<span class="btn">${el}</span>`);
-    return htmlElements.join(" ");
-};
+
+
 
 let allIssues = [];
-
-
-
 
 const loadIssues = () => {
     const spinner = document.getElementById("loading-spinner");
@@ -52,9 +47,6 @@ const filterIssues = (status, event) => {
     }else{
         issuesCard.innerHTML = "";
     }
-    // spinner.classList.remove('hidden');
-    // issuesCard.innerHTML = '';
-    // issuesCard.appendChild(spinner);
 
     const colorButton = document.querySelectorAll('.filter-btn');
     colorButton.forEach(btn => btn.classList.remove('active'));
@@ -67,7 +59,6 @@ const filterIssues = (status, event) => {
     const allIssue = document.getElementById("length-issues");
     allIssue.innerText = filteredData.length;
 
-    //spinner.classList.add('hidden');
     displayIssues(filteredData);
 };
 
@@ -84,6 +75,9 @@ const displayIssues=(issues)=>{
         // 3. create Element
         // console.log(issue);
         const issueCard = document.createElement("div");
+
+        issueCard.setAttribute("onclick", `showDetails(${issue.id})`);
+        issueCard.className = "cursor-pointer transition-transform hover:scale-[1.01]";
         issueCard.innerHTML = `
         <div class="flex flex-col h-full border-t-4 border-solid ${issue.status === 'open'?'border-green-500':'border-violet-500'} rounded-md shadow-md bg-white">
             <div class="p-2 space-y-3">
@@ -95,7 +89,7 @@ const displayIssues=(issues)=>{
                 </div>
 
                 <div class="">
-                    <h2 class="text-xl font-bold">${issue.title}</h2>
+                    <h2 class="text-lg md:text-xl font-bold">${issue.title}</h2>
                     <p class="text-sm font-medium text-gray-500">${issue.description}</p>
                 </div>
 
@@ -117,8 +111,59 @@ const displayIssues=(issues)=>{
 
 loadIssues();
 
-document.querySelector('input[type="search"]').addEventListener('input', (e) => {
+document.getElementById("search-ingine").addEventListener('input', (e) => {
     const term = e.target.value.toLowerCase();
     const result = allIssues.filter(issue => issue.title.toLowerCase().includes(term));
     displayIssues(result);
 });
+
+
+const showDetails = (id) => {
+    const issue = allIssues.find(item => item.id === id);
+    
+    if (issue) {
+        const modalTitle = document.getElementById("modal-title");
+        const modalAuthor = document.getElementById("modal-author");
+        const modalDate = document.getElementById("modal-date");
+        const modalStatus = document.getElementById("modal-status-badge");
+        const modalLabels = document.getElementById("modal-labels");
+        const modalDescription = document.getElementById("modal-description");
+        const modalAssignee = document.getElementById("modal-assignee");
+        const modalPriority = document.getElementById("modal-priority");
+
+        modalTitle.innerText = issue.title;
+        modalAuthor.innerText = issue.author;
+        modalDate.innerText = new Date(issue.createdAt).toLocaleDateString('en-GB');
+        modalDescription.innerText = issue.description;
+        modalAssignee.innerText = issue.assignee || "Not Assigned";
+
+
+        if(issue.status === 'open') {
+            modalStatus.innerText = "Opened";
+            modalStatus.className = "badge badge-success text-white px-4 py-3 rounded-full font-bold";
+        } else {
+            modalStatus.innerText = "Closed";
+            modalStatus.className = "badge badge-error text-white px-4 py-3 rounded-full font-bold";
+        }
+
+        modalPriority.innerText = issue.priority;
+        if(issue.priority === 'high') {
+            modalPriority.innerText = issue.priority.toUpperCase();
+            modalPriority.classList = 'btn btn-soft btn-error rounded-xl';
+        }
+        else if (issue.priority === 'medium') {
+            modalPriority.innerText = issue.priority.toUpperCase();
+            modalPriority.className = 'btn btn-soft btn-warning rounded-xl';
+        } else {
+            modalPriority.innerText = issue.priority.toUpperCase();
+            modalPriority.classList = 'btn btn-soft rounded-xl';
+        }
+
+        modalLabels.innerHTML = issue.labels.map(label => `
+            <span class="px-3 py-1 rounded-full border border-red-200 bg-red-50 text-red-500 font-bold text-xs uppercase flex items-center gap-1">
+                ${label === 'bug' ? '🐞' : label === 'help wanted' ? '🙋' : '🏷️'} ${label}
+            </span>
+        `).join('');
+        document.getElementById("issue_modal").showModal();
+    }
+};
