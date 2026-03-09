@@ -1,3 +1,9 @@
 *{
     font-family: "Geist", sans-serif;
 };
+
+.active{
+    background-color: #422ad5;
+    color: white;
+    font-weight: bold;
+}

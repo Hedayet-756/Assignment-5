@@ -3,12 +3,26 @@ const createElement = (arr) => {
     return htmlElements.join(" ");
 };
 
+let allIssues = [];
+
+
+
 
 const loadIssues = () => {
     fetch("https://phi-lab-server.vercel.app/api/v1/lab/issues") // promise of response
     .then(res => res.json())
-    .then(json => displayIssues(json.data));
+    .then(json => {
+        allIssues = json.data;
+        const allIssue = document.getElementById("length-issues");
+        allIssue.innerText = `${allIssues.length}`;
+        displayIssues(allIssues);
+    });
+    
 };
+
+const allIssue = document.getElementById("length-issues");
+allIssue.innerText = allIssues.length;
+
 
 // {
 // "id": 1,
@@ -26,6 +40,43 @@ const loadIssues = () => {
 // "updatedAt": "2024-01-15T10:30:00Z"
 // },
 
+document.getElementById('btn-all').addEventListener('click', () => filterIssues('all'));
+document.getElementById('btn-open').addEventListener('click', () => filterIssues('open'));
+document.getElementById('btn-Closed').addEventListener('click', () => filterIssues('closed'));
+
+
+const filterIssues = (status, event) => {
+    const colorButton = document.querySelectorAll('.filter-btn');
+    colorButton.forEach(btn => btn.classList.remove('active'));
+    if(event){
+        event.target.classList.add('active');
+    };
+
+
+
+
+    let filteredData;
+    
+    if (status === 'all') {
+        filteredData = allIssues; // যেখানে আপনার সব ডাটা সেভ করা আছে
+    } else {
+        filteredData = allIssues.filter(issue => issue.status === status);
+    }
+
+
+    // ইস্যু সংখ্যা আপডেট করা
+    allIssue.innerText = `${filteredData.length}`;
+
+    const issuesCard = document.getElementById("issues-card");
+    
+    // কার্ড কন্টেইনার খালি করে নতুন করে ডাটা দেখানো
+    issuesCard.innerHTML = '';
+    displayIssues(filteredData);
+};
+
+
+
+
 const displayIssues=(issues)=>{
     // get all issues container
     const issuesCard = document.getElementById("issues-card");
@@ -35,6 +86,7 @@ const displayIssues=(issues)=>{
         // 3. create Element
         // console.log(issue);
         const countIssues = document.createElement("length-issues");
+        countIssues.innerText = issues.length;
 
         const issueCard = document.createElement("div");
         issueCard.innerHTML = `
